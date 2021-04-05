@@ -24,7 +24,7 @@ userAgent = ua.random
 print(userAgent)
 print(args.count)
 
-F = open("namelist.csv", "w")
+F = open("namelist.csv", "a")
 for x in range(args.count):
 	if args.firefox:
 	    profile = webdriver.FirefoxProfile()
@@ -72,25 +72,6 @@ for x in range(args.count):
 
 	line = [fake_email[0], "\t", fullName, "\t", name, "\t", password, "\n"]
 	F.writelines(line)
-
-	time.sleep(8)
-
-	#Birthday verification
-	driver.find_element_by_xpath("//*[@id='react-root']/section/main/div/div/div[1]/div/div[4]/div/div/span/span[1]/select").click()
-	WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='react-root']/section/main/div/div/div[1]/div/div[4]/div/div/span/span[1]/select/option[4]"))).click()
-
-	driver.find_element_by_xpath("//*[@id='react-root']/section/main/div/div/div[1]/div/div[4]/div/div/span/span[2]/select").click()
-	WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='react-root']/section/main/div/div/div[1]/div/div[4]/div/div/span/span[2]/select/option[10]"))).click()
-
-	driver.find_element_by_xpath("//*[@id='react-root']/section/main/div/div/div[1]/div/div[4]/div/div/span/span[3]/select").click()
-	WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='react-root']/section/main/div/div/div[1]/div/div[4]/div/div/span/span[3]/select/option[27]"))).click()
-
-	WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='react-root']/section/main/div/div/div[1]/div/div[6]/button"))).click()
-	time.sleep(3)
-	#
-	fMail = fake_email[0].split("@")
-	mailName = fMail[0]
-	domain = fMail[1]
 
 	driver.close()
 
