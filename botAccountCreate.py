@@ -16,15 +16,16 @@ parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument("--firefox", action="store_true", help="Use Firefox - geckodriver")
 group.add_argument("--chrome", action="store_true", help = "Use Chrome - chromedriver")
+count = parser.add_argument("count", type=int, default=1, help="number of account creats")
 
 args = parser.parse_args()
 ua = UserAgent(verify_ssl=False)
 userAgent = ua.random
 print(userAgent)
-counts=2
+print(args.count)
 
 F = open("namelist.csv", "w")
-for x in range(2):
+for x in range(args.count):
 	if args.firefox:
 	    profile = webdriver.FirefoxProfile()
 	    profile.set_preference("general.useragent.ovrride", userAgent)    
@@ -91,6 +92,6 @@ for x in range(2):
 	mailName = fMail[0]
 	domain = fMail[1]
 
-	#driver.close()
+	driver.close()
 
 F.close()
