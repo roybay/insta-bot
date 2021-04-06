@@ -2,15 +2,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium import webdriver
 from fake_useragent import UserAgent
 import accountInfoGenerator as account
 import getVerifCode as verifiCode
-from selenium import webdriver
 import fakeMail as email
+import proxy_service as proxy
 import time
 import argparse
 import os
-
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)
@@ -24,6 +24,7 @@ userAgent = ua.random
 print(userAgent)
 print(args.count)
 
+
 F = open("namelist.csv", "a")
 for x in range(args.count):
 	if args.firefox:
@@ -36,10 +37,12 @@ for x in range(args.count):
 	    from selenium.webdriver.chrome.options import Options
 	    options = Options()
 	    options.add_argument(f'user-agent={userAgent}')
+	    options.add_argument(f'--proxy-server={proxy.Server}')
 	    driver= webdriver.Chrome(options=options, executable_path=os.environ['DRIVER_PATH'])
 
 	driver.get("https://www.instagram.com/accounts/emailsignup/")
 	time.sleep(8)
+
 	try:
 		cookie = driver.find_element_by_xpath('/html/body/div[2]/div/div/div/div[2]/button[1]').click()
 	except:
@@ -68,7 +71,7 @@ for x in range(args.count):
 	password=account.generatePassword()
 	password_field.send_keys(password)  # You can determine another password here.
 	print(password)
-	#WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='react-root']/section/main/div/div/div[1]/div/form/div[7]/div/button"))).click()
+	WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='react-root']/section/main/div/div/div[1]/div/form/div[7]/div/button"))).click()
 
 	line = [fake_email[0], "\t", fullName, "\t", name, "\t", password, "\n"]
 	F.writelines(line)
@@ -87,11 +90,25 @@ for x in range(args.count):
 
 	WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='react-root']/section/main/div/div/div[1]/div/div[6]/button"))).click()
 	time.sleep(3)
-	#
+	
 	fMail = fake_email[0].split("@")
 	mailName = fMail[0]
 	domain = fMail[1]
-
-	driver.close()
-
+	instCode = verifiCode.getInstVeriCode(mailName, domain, driver)
+	driver.find_element_by_name('email_confirmation_code').send_keys(instCode, Keys.ENTER)
+	time.sleep(10)
+	try:
+	    not_valid = driver.find_element_by_xpath('/html/body/div[1]/section/main/div/div/div[1]/div[2]/form/div/div[4]/div')
+	    if(not_valid.text == 'That code isn\'t valid. You can request a new one.'):
+	      time.sleep(1)
+	      driver.find_element_by_xpath('/html/body/div[1]/section/main/div/div/div[1]/div[1]/div[2]/div/button').click()
+	      time.sleep(10)
+	      instCodeNew = verifiCode.getInstVeriCodeDouble(mailName, domain, driver, instCode)
+	      confInput = driver.find_element_by_name('email_confirmation_code')
+	      confInput.send_keys(Keys.CONTROL + "a")
+	      confInput.send_keys(Keys.DELETE)
+	      confInput.send_keys(instCodeNew, Keys.ENTER)
+	except:
+	      pass
+	      
 F.close()
